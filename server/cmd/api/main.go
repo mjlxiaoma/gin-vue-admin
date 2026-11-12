@@ -108,6 +108,11 @@ func main() {
 	crudSvc := service.NewCrudService(crudRepo)
 	crudHandler := handler.NewCrudHandler(crudSvc)
 
+	// 商品管理：独立的完整 CRUD 模块
+	productRepo := repository.NewProductRepository(gdb)
+	productSvc := service.NewProductService(productRepo)
+	productHandler := handler.NewProductHandler(productSvc)
+
 	// M7: 部门管理（树形 + 级联删除）；deptRepo 已在用户模块处提前创建供 Resolver 复用。
 	deptSvc := service.NewDeptService(deptRepo)
 	deptHandler := handler.NewDeptHandler(deptSvc)
@@ -145,7 +150,7 @@ func main() {
 	noticeHandler := handler.NewNoticeHandler(service.NewNoticeService(noticeRepo, userRepo))
 
 	authHandler := handler.NewAuthHandler(authSvc)
-	r := server.NewRouter(authHandler, permHandler, roleHandler, userHandler, menuHandler, crudHandler, deptHandler, dictCatHandler, dictHandler, dictItemHandler, opLogHandler, loginLogHandler, sysConfigHandler, dashboardHandler, noticeHandler, permRepo, opLogRepo, jwtMgr, runner)
+	r := server.NewRouter(authHandler, permHandler, roleHandler, userHandler, menuHandler, crudHandler, productHandler, deptHandler, dictCatHandler, dictHandler, dictItemHandler, opLogHandler, loginLogHandler, sysConfigHandler, dashboardHandler, noticeHandler, permRepo, opLogRepo, jwtMgr, runner)
 
 	// 5. 启动 HTTP 服务
 	addr := ":" + strconv.Itoa(cfg.Server.Port)

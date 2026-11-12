@@ -62,5 +62,5 @@ func (Permission) TableName() string { return "permissions" }
 
 // AutoMigrate 自动建表。M0/M1 用 AutoMigrate；M5 切换为 golang-migrate 版本化迁移。
 func AutoMigrate(db *gorm.DB) error {
-	return db.AutoMigrate(&User{}, &Role{}, &Permission{}, &Menu{}, &CrudItem{}, &Dept{}, &DictCategory{}, &Dict{}, &DictItem{}, &OperationLog{}, &LoginLog{}, &SysConfig{}, &Notice{})
+	return db.AutoMigrate(&User{}, &Role{}, &Permission{}, &Menu{}, &CrudItem{}, &Product{}, &Dept{}, &DictCategory{}, &Dict{}, &DictItem{}, &OperationLog{}, &LoginLog{}, &SysConfig{}, &Notice{})
 }

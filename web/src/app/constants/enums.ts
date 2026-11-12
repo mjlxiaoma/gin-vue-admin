@@ -28,6 +28,7 @@ export const MODULE_STATUS_MAP: StatusMapEntry = {
   permission: { type: 'success', text: '权限管理' },
   dict: { type: 'danger', text: '字典管理' },
   config: { type: 'info', text: '系统配置' },
+  product: { type: 'warning', text: '商品管理' },
 }
 
 /** 通知优先级文本（公告/通知/待办共用） */

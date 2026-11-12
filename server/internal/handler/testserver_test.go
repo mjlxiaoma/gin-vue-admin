@@ -51,9 +51,10 @@ func newAppServer(t *testing.T) (r *gin.Engine, adminToken string) {
 	// 用户（数据范围 Resolver）
 	userSvc := service.NewUserService(userRepo, datascope.NewResolver(userRepo, deptRepo))
 
-	// 菜单 / crud / 部门
+	// 菜单 / crud / 商品 / 部门
 	menuSvc := service.NewMenuService(repository.NewMenuRepository(db))
 	crudSvc := service.NewCrudService(repository.NewCrudRepository(db))
+	productSvc := service.NewProductService(repository.NewProductRepository(db))
 	deptSvc := service.NewDeptService(deptRepo)
 
 	// 字典三级
@@ -82,6 +83,7 @@ func newAppServer(t *testing.T) (r *gin.Engine, adminToken string) {
 	userH := NewUserHandler(userSvc)
 	menuH := NewMenuHandler(menuSvc)
 	crudH := NewCrudHandler(crudSvc)
+	productH := NewProductHandler(productSvc)
 	deptH := NewDeptHandler(deptSvc)
 	dictCatH := NewDictCategoryHandler(dictCatSvc)
 	dictH := NewDictHandler(dictSvc)
@@ -158,6 +160,16 @@ func newAppServer(t *testing.T) (r *gin.Engine, adminToken string) {
 			crud.PUT("/:id", middleware.RequirePermission(permRepo, "crud:edit"), crudH.Update)
 			crud.DELETE("/:id", middleware.RequirePermission(permRepo, "crud:delete"), crudH.Delete)
 			crud.DELETE("", middleware.RequirePermission(permRepo, "crud:delete"), crudH.BatchDelete)
+		}
+
+		product := api.Group("/product", middleware.AuthRequired(jwtMgr))
+		{
+			product.GET("", middleware.RequirePermission(permRepo, "product:list"), productH.List)
+			product.GET("/:id", middleware.RequirePermission(permRepo, "product:list"), productH.Get)
+			product.POST("", middleware.RequirePermission(permRepo, "product:create"), productH.Create)
+			product.PUT("/:id", middleware.RequirePermission(permRepo, "product:edit"), productH.Update)
+			product.DELETE("/:id", middleware.RequirePermission(permRepo, "product:delete"), productH.Delete)
+			product.DELETE("", middleware.RequirePermission(permRepo, "product:delete"), productH.BatchDelete)
 		}
 
 		dict := api.Group("/dict", middleware.AuthRequired(jwtMgr))

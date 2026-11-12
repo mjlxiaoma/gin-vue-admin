@@ -39,8 +39,8 @@ describe('菜单结构（3 级嵌套）', () => {
     const tree = await api.get<MenuTreeNode[]>('/api/system/menu')
     const records = flatten(tree)
     const leaves = records.filter((r) => r.component)
-    // 预期叶子：home/crud/user/role/dept/permission/menu/dict/notice/loginLog/operationLog
-    expect(leaves.length).toBeGreaterThanOrEqual(11)
+    // 预期叶子：home/crud/product/user/role/dept/permission/menu/dict/notice/loginLog/operationLog
+    expect(leaves.length).toBeGreaterThanOrEqual(12)
   })
 
   it('中间分组节点（访问控制/系统配置）建立正确的父子链', async () => {
@@ -58,13 +58,13 @@ describe('菜单结构（3 级嵌套）', () => {
     expect(user!.parentId).toBe('systemAccess')
   })
 
-  it('系统管理下属分组数 = 3（访问控制/系统配置/日志管理）', async () => {
+  it('系统管理下包含商品管理和三个分组节点', async () => {
     const tree = await api.get<MenuTreeNode[]>('/api/system/menu')
     const records = flatten(tree)
     const systemChildren = records.filter((r) => r.parentId === 'system')
-    expect(systemChildren.length).toBe(3)
+    expect(systemChildren.length).toBe(4)
     const ids = systemChildren.map((r) => r.id).sort()
-    expect(ids).toEqual(['systemAccess', 'systemConfig', 'systemLog'])
+    expect(ids).toEqual(['product', 'systemAccess', 'systemConfig', 'systemLog'])
   })
 
   it('图标全部 PascalCase（无小写不渲染问题）', async () => {

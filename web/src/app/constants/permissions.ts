@@ -26,6 +26,10 @@ export const Permissions = {
   DEPT_WRITE: 'dept:write',
   NOTICE_READ: 'notice:read',
   NOTICE_WRITE: 'notice:write',
+  PRODUCT_LIST: 'product:list',
+  PRODUCT_CREATE: 'product:create',
+  PRODUCT_EDIT: 'product:edit',
+  PRODUCT_DELETE: 'product:delete',
   LOG_READ: 'log:read',
 } as const
 

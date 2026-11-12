@@ -35,7 +35,7 @@ func registerDictRoutes(g *gin.RouterGroup, permRepo repository.PermissionReposi
 }
 
 // NewRouter 装配全局中间件与路由。
-func NewRouter(authHandler *handler.AuthHandler, permHandler *handler.PermissionHandler, roleHandler *handler.RoleHandler, userHandler *handler.UserHandler, menuHandler *handler.MenuHandler, crudHandler *handler.CrudHandler, deptHandler *handler.DeptHandler, dictCategoryHandler *handler.DictCategoryHandler, dictHandler *handler.DictHandler, dictItemHandler *handler.DictItemHandler, opLogHandler *handler.OperationLogHandler, loginLogHandler *handler.LoginLogHandler, sysConfigHandler *handler.SysConfigHandler, dashboardHandler *handler.DashboardHandler, noticeHandler *handler.NoticeHandler, permRepo repository.PermissionRepository, opLogRepo repository.OperationLogRepository, jwtMgr *jwt.Manager, runner async.Runner) *gin.Engine {
+func NewRouter(authHandler *handler.AuthHandler, permHandler *handler.PermissionHandler, roleHandler *handler.RoleHandler, userHandler *handler.UserHandler, menuHandler *handler.MenuHandler, crudHandler *handler.CrudHandler, productHandler *handler.ProductHandler, deptHandler *handler.DeptHandler, dictCategoryHandler *handler.DictCategoryHandler, dictHandler *handler.DictHandler, dictItemHandler *handler.DictItemHandler, opLogHandler *handler.OperationLogHandler, loginLogHandler *handler.LoginLogHandler, sysConfigHandler *handler.SysConfigHandler, dashboardHandler *handler.DashboardHandler, noticeHandler *handler.NoticeHandler, permRepo repository.PermissionRepository, opLogRepo repository.OperationLogRepository, jwtMgr *jwt.Manager, runner async.Runner) *gin.Engine {
 	r := gin.New()
 	r.HandleMethodNotAllowed = true
 	r.Use(
@@ -128,6 +128,17 @@ func NewRouter(authHandler *handler.AuthHandler, permHandler *handler.Permission
 			crud.PUT("/:id", middleware.RequirePermission(permRepo, "crud:edit"), crudHandler.Update)
 			crud.DELETE("/:id", middleware.RequirePermission(permRepo, "crud:delete"), crudHandler.Delete)
 			crud.DELETE("", middleware.RequirePermission(permRepo, "crud:delete"), crudHandler.BatchDelete)
+		}
+
+		product := api.Group("/product")
+		product.Use(middleware.AuthRequired(jwtMgr))
+		{
+			product.GET("", middleware.RequirePermission(permRepo, "product:list"), productHandler.List)
+			product.GET("/:id", middleware.RequirePermission(permRepo, "product:list"), productHandler.Get)
+			product.POST("", middleware.RequirePermission(permRepo, "product:create"), productHandler.Create)
+			product.PUT("/:id", middleware.RequirePermission(permRepo, "product:edit"), productHandler.Update)
+			product.DELETE("/:id", middleware.RequirePermission(permRepo, "product:delete"), productHandler.Delete)
+			product.DELETE("", middleware.RequirePermission(permRepo, "product:delete"), productHandler.BatchDelete)
 		}
 
 		dict := api.Group("/dict")

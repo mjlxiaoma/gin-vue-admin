@@ -22,6 +22,17 @@ export const ALL_MENUS = [
     meta: { title: '系统管理', icon: 'Setting', showMenu: true },
     children: [
       {
+        path: '/product',
+        name: 'product',
+        component: 'product/views/List',
+        meta: {
+          title: '商品管理',
+          icon: 'Goods',
+          showMenu: true,
+          permissions: { any: ['product:list', '*'] }
+        }
+      },
+      {
         path: '/system/access',
         name: 'systemAccess',
         meta: {

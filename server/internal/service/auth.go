@@ -74,6 +74,7 @@ var seedPermissionCodes = []string{
 	"config:system", "config:parameter", "config:email",
 	"menu:list", "menu:create", "menu:edit", "menu:delete", // M4.2 菜单管理
 	"crud:list", "crud:create", "crud:edit", "crud:delete", // M6 通用 CRUD 范例
+	"product:list", "product:create", "product:edit", "product:delete", // 商品管理
 	"dept:list", "dept:create", "dept:edit", "dept:delete", // M7 部门管理
 	"notice:list", "notice:create", "notice:edit", "notice:delete", // 公告管理
 }
@@ -84,6 +85,7 @@ var seedPermissionCodes = []string{
 var seedMenus = []model.Menu{
 	{Name: "home", Title: "首页", Path: "/", Component: "dashboard/views/Home", Icon: "HomeFilled", Sort: 0, ShowMenu: true},
 	{Name: "crud", Title: "增删改查", Path: "/crud", Component: "crud/views/List", Icon: "Document", Sort: 10, ShowMenu: true, PermissionCode: "crud:list"},
+	{Name: "product", Title: "商品管理", Path: "/product", Component: "product/views/List", Icon: "Goods", Sort: 15, ShowMenu: true, PermissionCode: "product:list"},
 	{Name: "system", Title: "系统管理", Path: "/system", Icon: "Setting", Sort: 20, ShowMenu: true},
 	{Name: "systemUser", Title: "用户管理", Path: "/system/user", Component: "system/user/views/List", Icon: "User", Sort: 0, ShowMenu: true, PermissionCode: "user:list"},
 	{Name: "systemRole", Title: "角色管理", Path: "/system/role", Component: "system/role/views/List", Icon: "Avatar", Sort: 10, ShowMenu: true, PermissionCode: "role:list"},

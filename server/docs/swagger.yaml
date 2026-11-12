@@ -169,6 +169,38 @@ definitions:
       targetId:
         type: integer
     type: object
+  gva_internal_service.NoticeUpsertReq:
+    properties:
+      content:
+        type: string
+      expireTime:
+        type: string
+      priority:
+        enum:
+        - high
+        - medium
+        - low
+        type: string
+      publishTime:
+        type: string
+      status:
+        enum:
+        - published
+        - draft
+        - expired
+        type: string
+      title:
+        maxLength: 255
+        type: string
+      type:
+        enum:
+        - announcement
+        - notice
+        - todo
+        type: string
+    required:
+    - title
+    type: object
   gva_internal_service.UserCreateReq:
     properties:
       email:
@@ -312,6 +344,16 @@ definitions:
     required:
     - ids
     type: object
+  internal_handler.noticeBatchDeleteReq:
+    properties:
+      ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
   internal_handler.opLogBatchDeleteReq:
     properties:
       ids:
@@ -340,6 +382,40 @@ definitions:
     required:
     - code
     - module
+    - name
+    - status
+    type: object
+  internal_handler.productBatchDeleteReq:
+    properties:
+      ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
+  internal_handler.productUpsertReq:
+    properties:
+      category:
+        maxLength: 50
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      price:
+        minimum: 0
+        type: number
+      status:
+        enum:
+        - "on"
+        - "off"
+        type: string
+      stock:
+        minimum: 0
+        type: integer
+    required:
+    - category
     - name
     - status
     type: object
@@ -676,6 +752,54 @@ paths:
       summary: CRUD 范例更新
       tags:
       - crud
+  /dashboard/activities:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 最近活动
+      tags:
+      - dashboard
+  /dashboard/charts:
+    get:
+      parameters:
+      - default: 7d
+        description: 7d/30d/90d
+        in: query
+        name: range
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 首页图表（趋势 + 分布）
+      tags:
+      - dashboard
+  /dashboard/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 首页统计卡片
+      tags:
+      - dashboard
   /dict/categories:
     delete:
       consumes:
@@ -1380,6 +1504,185 @@ paths:
       summary: 导出权限 CSV
       tags:
       - permission
+  /product:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 商品 ID 列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.productBatchDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 批量删除商品
+      tags:
+      - product
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页
+        in: query
+        name: size
+        type: integer
+      - description: 商品名称关键词
+        in: query
+        name: keyword
+        type: string
+      - description: on/off
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 商品分页列表
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 商品信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.productUpsertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 创建商品
+      tags:
+      - product
+  /product/{id}:
+    delete:
+      parameters:
+      - description: 商品 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 删除商品
+      tags:
+      - product
+    get:
+      parameters:
+      - description: 商品 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 商品详情
+      tags:
+      - product
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 商品 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 商品信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.productUpsertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 更新商品
+      tags:
+      - product
   /role:
     delete:
       consumes:
@@ -1792,6 +2095,19 @@ paths:
       security:
       - BearerAuth: []
       summary: 按 key 取配置
+      tags:
+      - sys-config
+  /system/config/public:
+    get:
+      description: 返回白名单配置（site_title/login_captcha_enabled/default_page_size），前端启动拉取
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      summary: 公开配置
       tags:
       - sys-config
   /system/dept:
@@ -2213,6 +2529,211 @@ paths:
       summary: 当前用户菜单树
       tags:
       - menu
+  /system/notice:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID 列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.noticeBatchDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 批量删除公告
+      tags:
+      - notice
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页
+        in: query
+        name: size
+        type: integer
+      - description: 标题关键词
+        in: query
+        name: keyword
+        type: string
+      - description: announcement/notice/todo
+        in: query
+        name: type
+        type: string
+      - description: published/draft/expired
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 公告分页列表
+      tags:
+      - notice
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 公告信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gva_internal_service.NoticeUpsertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 创建公告
+      tags:
+      - notice
+  /system/notice/{id}:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 删除公告
+      tags:
+      - notice
+    get:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ProblemDetail'
+      security:
+      - BearerAuth: []
+      summary: 公告详情
+      tags:
+      - notice
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 公告信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gva_internal_service.NoticeUpsertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 更新公告
+      tags:
+      - notice
+  /system/notice/{id}/publish:
+    post:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 发布公告
+      tags:
+      - notice
+  /system/notice/{id}/revoke:
+    post:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 撤销公告
+      tags:
+      - notice
+  /system/notice/export:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gva_internal_pkg_response.ApiResult'
+      security:
+      - BearerAuth: []
+      summary: 导出公告 CSV
+      tags:
+      - notice
   /system/operation-log:
     delete:
       consumes:
